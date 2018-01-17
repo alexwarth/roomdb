@@ -111,6 +111,9 @@ class RoomDB {
   }
 
   makeFactOrPattern(factString, ...fillerValues) {
+    if (arguments.length === 0) {
+      throw new Error('makeFactOrPattern requires at least one argument!');
+    }
     if (typeof factString !== 'string') {
       throw new Error('factString must be a string!');
     }
