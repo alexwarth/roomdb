@@ -1,5 +1,8 @@
 'use strict';
 
+// TODO: auto-populate evidence using evidenceStack
+// (haven't finished it yet)
+
 // TODO: consider space-insensitive matching for facts
 // (would need a canonical representation to use as keys for factMap)
 
@@ -19,7 +22,7 @@ class RoomDB {
     } else {
       patterns = patternOrPatterns;
     }
-    patterns = patterns.map(pattern => this.parse(pattern));
+    patterns = patterns.map(pattern => this.makeFact(pattern));
     const solutions = [];
     this.collectSolutions(patterns, Object.create(null), solutions);
     if (optCallbackFn) {
@@ -48,19 +51,7 @@ class RoomDB {
   }
 
   assert(factString, ...fillerValues) {
-    const fact = this.parse(factString);
-    for (let idx = 0; idx < fact.terms.length; idx++) {
-      const term = fact.terms[idx];
-      if (term instanceof Hole) {
-        if (fillerValues.length === 0) {
-          throw new Error('not enough filler values!');
-        }
-        fact.terms[idx] = this.toTerm(fillerValues.shift());
-      }
-    }
-    if (fillerValues.length > 0) {
-      throw new Error('too many filler values!');
-    }
+    const fact = this.makeFact(factString, ...fillerValues);
     fact.evidence = this.evidenceStack.length > 0 ?
         this.evidenceStack[this.evidenceStack.length - 1] :
         [];
@@ -75,9 +66,9 @@ class RoomDB {
     };
   }
 
-  retract(factString) {
-    const factOrPattern = this.parse(factString, 'fact');
-    if (factOrPattern.hasVarsOrHoles()) {
+  retract(factString, ...fillerValues) {
+    const factOrPattern = this.makeFact(factString, ...fillerValues);
+    if (factOrPattern.hasVars()) {
       const factsToRetract = [];
       for (let fact of this.facts) {
         if (factOrPattern.match(fact, Object.create(null))) {
@@ -107,6 +98,23 @@ class RoomDB {
       this.factMap.delete(fact.toString());
     }
     return factsToRetract.length;
+  }
+
+  makeFact(factString, ...fillerValues) {
+    const fact = this.parse(factString);
+    for (let idx = 0; idx < fact.terms.length; idx++) {
+      const term = fact.terms[idx];
+      if (term instanceof Hole) {
+        if (fillerValues.length === 0) {
+          throw new Error('not enough filler values!');
+        }
+        fact.terms[idx] = this.toTerm(fillerValues.shift());
+      }
+    }
+    if (fillerValues.length > 0) {
+      throw new Error('too many filler values!');
+    }
+    return fact;
   }
 
   parse(str, rule = 'factOrPattern') {
@@ -222,8 +230,7 @@ class Var extends Term {
 
 class Hole extends Term {
   match(that, env) {
-    // Holes act as wildcards when used in query patterns
-    return env;
+    throw new Error('holes should never show up in a query pattern');
   }
 
   toRawValue() {
@@ -274,10 +281,8 @@ class Fact {
     this.terms = terms;
   }
 
-  hasVarsOrHoles() {
-    return this.terms.some(term =>
-        term instanceof Var ||
-        term instanceof Hole);
+  hasVars() {
+    return this.terms.some(term => term instanceof Var);
   }
 
   match(that, env) {
