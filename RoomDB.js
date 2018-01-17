@@ -1,5 +1,8 @@
 'use strict';
 
+// TODO: consider space-insensitive matching for facts
+// (would need a canonical representation to use as keys for factMap)
+
 // TODO: think about primary keys
 
 class RoomDB {
