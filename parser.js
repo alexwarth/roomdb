@@ -106,7 +106,7 @@ RoomDB.semantics = RoomDB.grammar.createSemantics().addOperation('parse', {
 });
 
 RoomDB.parse = function(str, rule) {
-  const matchResult = RoomDB.grammar.match(str, rule);
+  const matchResult = RoomDB.grammar.match(str.trim(), rule);
   if (matchResult.succeeded()) {
     return RoomDB.semantics(matchResult).parse();
   } else {
