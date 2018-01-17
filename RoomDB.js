@@ -9,6 +9,21 @@ class RoomDB {
   constructor() {
     this.parseCache = new Map();
     this.factMap = new Map();
+    this.nextClientId = 1;
+    this.clientMap = new Map();
+  }
+
+  connect(id = this.newClientId()) {
+    if (this.clientMap.has(id)) {
+      throw new Error('there is already a client whose id is ' + id);
+    }
+    const client = new Client(id, this);
+    this.clientMap.set(id, client);
+    return client;
+  }
+
+  newClientId() {
+    return '_' + this.nextClientId++;
   }
 
   select(...patterns) {
@@ -53,8 +68,9 @@ class RoomDB {
     }
   }
 
-  assert(factString, ...fillerValues) {
+  assert(asserterClientId, factString, ...fillerValues) {
     const fact = this.makeFactOrPattern(factString, ...fillerValues);
+    fact.asserter = asserterClientId;
     if (fact.hasVars()) {
       throw new Error('cannot assert a fact that has vars!');
     }
@@ -99,7 +115,7 @@ class RoomDB {
     return count;
   }
 
-  forgetEverythingAbout(idString) {
+  retractEverythingAbout(idString) {
     const id = this.parse(idString, 'identity');
     const factsToRetract = [];
     const emptyEnv = Object.create(null);
@@ -108,6 +124,14 @@ class RoomDB {
         factsToRetract.push(fact);
       }
     }
+    for (let fact of factsToRetract) {
+      this.factMap.delete(fact.toString());
+    }
+    return factsToRetract.length;
+  }
+
+  retractEverythingAssertedBy(clientId) {
+    const factsToRetract = this.facts.filter(fact => fact.asserter === clientId);
     for (let fact of factsToRetract) {
       this.factMap.delete(fact.toString());
     }
@@ -173,6 +197,46 @@ class RoomDB {
 
   toString() {
     return this.facts.map(fact => fact.toString()).join('\n');
+  }
+}
+
+class Client {
+  constructor(id, db) {
+    this.db = db;
+    this.id = id;
+  }
+
+  select(...patterns) {
+    return this.db.select(...patterns);
+  }
+
+  assert(factString, ...fillerValues) {
+    return this.db.assert(this.id, factString, ...fillerValues);
+  }
+
+  retract(factString, ...fillerNames) {
+    return this.db.retract(factString, ...fillerNames);
+  }
+
+  retractEverythingAbout(idString) {
+    return this.db.retractEverythingAbout(idString);
+  }
+
+  retractEverythingAssertedByMe() {
+    return this.db.retractEverythingAssertedBy(this.id);
+  }
+
+  get facts() {
+    return this.db.facts;
+  }
+
+  disconnect() {
+    this.db.clientMap.delete(this.id);
+    this.db = null;  // to disable this client
+  }
+
+  toString() {
+    return `[client ${this.id}]`;
   }
 }
 

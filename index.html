@@ -8,18 +8,20 @@
 'use strict';
 
 const room = new RoomDB();
+const client1 = room.connect();
+const client2 = room.connect();
 
-room.assert('#obj1 is a _ at (-100.5e-3.2, _)', new Word('circle'), 25);
-room.assert('#obj1\'s radius is 10');
-room.assert('#obj2 is a circle at (5, 42)');
-room.assert('#obj1 is next to #obj2');
-room.assert('#alex\'s nickname is "warf"');
-room.assert('#anotherObj is _', {name: 'Bart', age: 10});
+client1.assert('#obj1 is a _ at (-100.5e-3.2, _)', new Word('circle'), 25);
+client1.assert('#obj1\'s radius is 10');
+client2.assert('#obj2 is a circle at (5, 42)');
+client2.assert('#obj1 is next to #obj2');
+client2.assert('#alex\'s nickname is "warf"');
+client2.assert('#anotherObj is _', {name: 'Bart', age: 10});
 console.log('---');
 console.log(room.toString());
 
 
-room.assert('#anotherObj is _', {name: 'Homer', age: 39});
+client1.assert('#anotherObj is _', {name: 'Homer', age: 39});
 console.log('---');
 console.log(room.toString());
 
