@@ -1,0 +1,28 @@
+<html>
+  <body>
+    <script src="lib/ohm.min.js"></script>
+    <script src="RoomDB.js"></script>
+    <script src="parser.js"></script>
+    <script>
+
+'use strict';
+
+const room = new RoomDB();
+
+room.assert('#obj1 is a _ at (-100.5e-3.2, _)', new Word('circle'), 25);
+room.assert('#obj1\'s radius is 10');
+room.assert('#obj2 is a circle at (5, 42)');
+room.assert('#obj1 is next to #obj2');
+room.assert('#alex\'s nickname is "warf"');
+room.assert('#anotherObj is _', {name: 'Bart', age: 10});
+console.log('---');
+console.log(room.toString());
+
+
+room.assert('#anotherObj is _', {name: 'Homer', age: 39});
+console.log('---');
+console.log(room.toString());
+
+    </script>
+  </body>
+</html>
