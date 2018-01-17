@@ -7,32 +7,32 @@
 
 class RoomDB {
   constructor() {
-    this.parseCache = new Map();
-    this.factMap = new Map();
-    this.nextClientId = 1;
-    this.clientMap = new Map();
+    this._parseCache = new Map();
+    this._factMap = new Map();
+    this._nextClientId = 1;
+    this._clientMap = new Map();
   }
 
-  connect(id = this.newClientId()) {
-    if (this.clientMap.has(id)) {
+  connect(id = this._newClientId()) {
+    if (this._clientMap.has(id)) {
       throw new Error('there is already a client whose id is ' + id);
     }
     const client = new Client(id, this);
-    this.clientMap.set(id, client);
+    this._clientMap.set(id, client);
     return client;
   }
 
-  newClientId() {
-    return '_' + this.nextClientId++;
+  _newClientId() {
+    return '_' + this._nextClientId++;
   }
 
-  select(...patterns) {
+  _select(...patterns) {
     patterns = patterns.map(pattern =>
         pattern instanceof Array ?
-            this.makeFactOrPattern(...pattern) :
-            this.makeFactOrPattern(pattern));
+            this._makeFactOrPattern(...pattern) :
+            this._makeFactOrPattern(pattern));
     const solutions = [];
-    this.collectSolutions(patterns, Object.create(null), solutions);
+    this._collectSolutions(patterns, Object.create(null), solutions);
     return {
       do(callbackFn) {
         for (let solution of solutions) {
@@ -54,7 +54,7 @@ class RoomDB {
     };
   }
 
-  collectSolutions(patterns, env, solutions) {
+  _collectSolutions(patterns, env, solutions) {
     if (patterns.length === 0) {
       solutions.push(env);
     } else {
@@ -62,30 +62,30 @@ class RoomDB {
       for (let fact of this.facts) {
         const newEnv = Object.create(env);
         if (pattern.match(fact, newEnv)) {
-          this.collectSolutions(patterns.slice(1), newEnv, solutions);
+          this._collectSolutions(patterns.slice(1), newEnv, solutions);
         }
       }
     }
   }
 
-  assert(asserterClientId, factString, ...fillerValues) {
-    const fact = this.makeFactOrPattern(factString, ...fillerValues);
+  _assert(asserterClientId, factString, ...fillerValues) {
+    const fact = this._makeFactOrPattern(factString, ...fillerValues);
     fact.asserter = asserterClientId;
     if (fact.hasVars()) {
       throw new Error('cannot assert a fact that has vars!');
     }
     fact.evidence = [];
-    this.factMap.set(fact.toString(), fact);
+    this._factMap.set(fact.toString(), fact);
     return {
       withEvidence: (...evidence) => {
-        evidence = evidence.map(e => this.makeFactOrPattern(e));
+        evidence = evidence.map(e => this._makeFactOrPattern(e));
         const evidenceWithVars = evidence.filter(e => e.hasVars());
         if (evidenceWithVars.length > 0) {
           console.error('the following evidence has vars:');
           evidenceWithVars.forEach(e => console.info(e.toString()));
           throw new Error('evidence facts cannot have vars!');
         }
-        const falseEvidence = evidence.filter(e => !this.factMap.has(e.toString()));
+        const falseEvidence = evidence.filter(e => !this._factMap.has(e.toString()));
         if (falseEvidence.length > 0) {
           console.error('the following evidence is not in the database:');
           falseEvidence.forEach(e => console.info(e.toString()));
@@ -96,8 +96,8 @@ class RoomDB {
     };
   }
 
-  retract(factString, ...fillerValues) {
-    const factOrPattern = this.makeFactOrPattern(factString, ...fillerValues);
+  _retract(factString, ...fillerValues) {
+    const factOrPattern = this._makeFactOrPattern(factString, ...fillerValues);
     if (factOrPattern.hasVars()) {
       const factsToRetract = [];
       for (let fact of this.facts) {
@@ -106,16 +106,16 @@ class RoomDB {
         }
       }
       for (let fact of factsToRetract) {
-        this.factMap.delete(fact.toString());
+        this._factMap.delete(fact.toString());
       }
       return factsToRetract.length;
     } else {
-      return this.factMap.delete(factOrPattern.toString()) ? 1 : 0;
+      return this._factMap.delete(factOrPattern.toString()) ? 1 : 0;
     }
     return count;
   }
 
-  retractEverythingAbout(idString) {
+  _retractEverythingAbout(idString) {
     const id = this.parse(idString, 'identity');
     const factsToRetract = [];
     const emptyEnv = Object.create(null);
@@ -125,22 +125,22 @@ class RoomDB {
       }
     }
     for (let fact of factsToRetract) {
-      this.factMap.delete(fact.toString());
+      this._factMap.delete(fact.toString());
     }
     return factsToRetract.length;
   }
 
-  retractEverythingAssertedBy(clientId) {
+  _retractEverythingAssertedBy(clientId) {
     const factsToRetract = this.facts.filter(fact => fact.asserter === clientId);
     for (let fact of factsToRetract) {
-      this.factMap.delete(fact.toString());
+      this._factMap.delete(fact.toString());
     }
     return factsToRetract.length;
   }
 
-  makeFactOrPattern(factString, ...fillerValues) {
+  _makeFactOrPattern(factString, ...fillerValues) {
     if (arguments.length === 0) {
-      throw new Error('makeFactOrPattern requires at least one argument!');
+      throw new Error('_makeFactOrPattern requires at least one argument!');
     }
     if (typeof factString !== 'string') {
       throw new Error('factString must be a string!');
@@ -166,17 +166,17 @@ class RoomDB {
       return RoomDB.parse(str, rule);
     }
     let thing;
-    if (this.parseCache.has(str)) {
-      thing = this.parseCache.get(str);
+    if (this._parseCache.has(str)) {
+      thing = this._parseCache.get(str);
     } else {
       thing = RoomDB.parse(str, rule);
-      this.parseCache.set(str, thing);
+      this._parseCache.set(str, thing);
     }
     return thing.clone();
   }
 
   clearParseCache() {
-    this.parseCache.clear();
+    this._parseCache.clear();
   }
 
   toTerm(x) {
@@ -192,7 +192,7 @@ class RoomDB {
   }
 
   get facts() {
-    return Array.from(this.factMap.values());
+    return Array.from(this._factMap.values());
   }
 
   toString() {
@@ -202,41 +202,41 @@ class RoomDB {
 
 class Client {
   constructor(id, db) {
-    this.db = db;
-    this.id = id;
+    this._db = db;
+    this._id = id;
   }
 
   select(...patterns) {
-    return this.db.select(...patterns);
+    return this._db._select(...patterns);
   }
 
   assert(factString, ...fillerValues) {
-    return this.db.assert(this.id, factString, ...fillerValues);
+    return this._db._assert(this._id, factString, ...fillerValues);
   }
 
   retract(factString, ...fillerNames) {
-    return this.db.retract(factString, ...fillerNames);
+    return this._db._retract(factString, ...fillerNames);
   }
 
   retractEverythingAbout(idString) {
-    return this.db.retractEverythingAbout(idString);
+    return this._db._retractEverythingAbout(idString);
   }
 
   retractEverythingAssertedByMe() {
-    return this.db.retractEverythingAssertedBy(this.id);
+    return this._db._retractEverythingAssertedBy(this._id);
   }
 
   get facts() {
-    return this.db.facts;
+    return this._db.facts;
   }
 
   disconnect() {
-    this.db.clientMap.delete(this.id);
-    this.db = null;  // to disable this client
+    this._db._clientMap.delete(this._id);
+    this._db = null;  // to disable this client
   }
 
   toString() {
-    return `[client ${this.id}]`;
+    return `[client ${this._id}]`;
   }
 }
 
