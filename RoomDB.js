@@ -1,8 +1,5 @@
 'use strict';
 
-// TODO: auto-populate evidence using evidenceStack
-// (haven't finished it yet)
-
 // TODO: consider space-insensitive matching for facts
 // (would need a canonical representation to use as keys for factMap)
 
@@ -12,7 +9,6 @@ class RoomDB {
   constructor() {
     this.parseCache = new Map();
     this.factMap = new Map();
-    this.evidenceStack = [];
   }
 
   select(...patterns) {
@@ -62,16 +58,24 @@ class RoomDB {
     if (fact.hasVars()) {
       throw new Error('cannot assert a fact that has vars!');
     }
-    fact.evidence = this.evidenceStack.length > 0 ?
-        this.evidenceStack[this.evidenceStack.length - 1] :
-        [];
+    fact.evidence = [];
     this.factMap.set(fact.toString(), fact);
     return {
-      withEvidence(...evidence) {
+      withEvidence: (...evidence) => {
+        evidence = evidence.map(e => this.makeFactOrPattern(e));
+        const evidenceWithVars = evidence.filter(e => e.hasVars());
+        if (evidenceWithVars.length > 0) {
+          console.error('the following evidence has vars:');
+          evidenceWithVars.forEach(e => console.info(e.toString()));
+          throw new Error('evidence facts cannot have vars!');
+        }
+        const falseEvidence = evidence.filter(e => !this.factMap.has(e.toString()));
+        if (falseEvidence.length > 0) {
+          console.error('the following evidence is not in the database:');
+          falseEvidence.forEach(e => console.info(e.toString()));
+          throw new Error('evidence facts must be in the database!');
+        }
         fact.evidence = evidence;
-      },
-      withoutEvidence() {
-        fact.evidence = [];
       }
     };
   }
