@@ -106,15 +106,18 @@ class RoomDB {
     return factsToRetract.length;
   }
 
-  parse(factOrPatternString, optRule) {
-    let thing;
-    if (!this.parseCache.has(factOrPatternString)) {
-      thing = RoomDB.parse(factOrPatternString, optRule);
-      this.parseCache.set(factOrPatternString, thing);
-    } else {
-      thing = this.parseCache.get(factOrPatternString);
+  parse(str, rule = 'factOrPattern') {
+    if (rule !== 'factOrPattern') {
+      return RoomDB.parse(str, rule);
     }
-    return thing instanceof Fact ? thing.clone() : thing;
+    let thing;
+    if (this.parseCache.has(str)) {
+      thing = this.parseCache.get(str);
+    } else {
+      thing = RoomDB.parse(str, rule);
+      this.parseCache.set(str, thing);
+    }
+    return thing.clone();
   }
 
   clearParseCache() {
@@ -141,8 +144,6 @@ class RoomDB {
     return this.facts.map(fact => fact.toString()).join('\n');
   }
 }
-
-RoomDB.debug = true;
 
 class Term {
   toRawValue() {

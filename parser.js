@@ -105,10 +105,7 @@ RoomDB.semantics = RoomDB.grammar.createSemantics().addOperation('parse', {
   }
 });
 
-RoomDB.parse = function(str, rule = 'factOrPattern') {
-  if (RoomDB.debug) {
-    console.log('new parse: ', str);
-  }
+RoomDB.parse = function(str, rule) {
   const matchResult = RoomDB.grammar.match(str, rule);
   if (matchResult.succeeded()) {
     return RoomDB.semantics(matchResult).parse();
