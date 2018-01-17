@@ -15,25 +15,32 @@ class RoomDB {
     this.evidenceStack = [];
   }
 
-  query(patternOrPatterns, optCallbackFn) {
-    let patterns;
-    if (typeof patternOrPatterns === 'string') {
-      patterns = [patternOrPatterns];
-    } else {
-      patterns = patternOrPatterns;
-    }
-    patterns = patterns.map(pattern => this.makeFact(pattern));
+  select(...patterns) {
+    patterns = patterns.map(pattern =>
+        pattern instanceof Array ?
+            this.makeFactOrPattern(...pattern) :
+            this.makeFactOrPattern(pattern));
     const solutions = [];
     this.collectSolutions(patterns, Object.create(null), solutions);
-    if (optCallbackFn) {
-      for (let solution of solutions) {
-        for (let name in solution) {
-          solution[name] = solution[name].toRawValue();
+    return {
+      do(callbackFn) {
+        for (let solution of solutions) {
+          for (let name in solution) {
+            solution[name] = solution[name].toRawValue();
+          }
+          callbackFn(solution);
         }
-        optCallbackFn(solution);
+      },
+      count() {
+        return solutions.length;
+      },
+      isEmpty() {
+        return solutions.length === 0;
+      },
+      isNotEmpty() {
+        return solutions.length > 0;
       }
-    }
-    return solutions.length > 0;
+    };
   }
 
   collectSolutions(patterns, env, solutions) {
@@ -51,7 +58,10 @@ class RoomDB {
   }
 
   assert(factString, ...fillerValues) {
-    const fact = this.makeFact(factString, ...fillerValues);
+    const fact = this.makeFactOrPattern(factString, ...fillerValues);
+    if (fact.hasVars()) {
+      throw new Error('cannot assert a fact that has vars!');
+    }
     fact.evidence = this.evidenceStack.length > 0 ?
         this.evidenceStack[this.evidenceStack.length - 1] :
         [];
@@ -67,7 +77,7 @@ class RoomDB {
   }
 
   retract(factString, ...fillerValues) {
-    const factOrPattern = this.makeFact(factString, ...fillerValues);
+    const factOrPattern = this.makeFactOrPattern(factString, ...fillerValues);
     if (factOrPattern.hasVars()) {
       const factsToRetract = [];
       for (let fact of this.facts) {
@@ -100,7 +110,10 @@ class RoomDB {
     return factsToRetract.length;
   }
 
-  makeFact(factString, ...fillerValues) {
+  makeFactOrPattern(factString, ...fillerValues) {
+    if (typeof factString !== 'string') {
+      throw new Error('factString must be a string!');
+    }
     const fact = this.parse(factString);
     for (let idx = 0; idx < fact.terms.length; idx++) {
       const term = fact.terms[idx];
