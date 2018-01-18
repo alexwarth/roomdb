@@ -1,9 +1,13 @@
 'use strict';
 
+// TODO: include "world time" in facts
+
+// TODO: think about support for wishes
+
 // TODO: consider space-insensitive matching for facts
 // (would need a canonical representation to use as keys for factMap)
 
-// TODO: think about primary keys
+// TODO: think about "primary keys"
 
 class RoomDB {
   constructor() {
