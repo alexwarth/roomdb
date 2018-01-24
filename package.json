@@ -1,0 +1,27 @@
+{
+  "name": "roomdb",
+  "version": "0.1.0",
+  "main": "dist/roomdb.js",
+  "repository": "https://github.com/alexwarth/roomdb",
+  "author": "Alex Warth",
+  "license": "MIT",
+  "scripts": {
+    "build": "npm-run-all build:* test",
+    "build:dev": "NODE_ENV=development rollup --config",
+    "build:prod": "rollup --config",
+    "develop": "nodemon --watch src --watch tests --exec 'yarn build'",
+    "test": "ava tests/*"
+  },
+  "dependencies": {
+    "ohm-js": "^0.14.0"
+  },
+  "devDependencies": {
+    "ava": "^0.24.0",
+    "nodemon": "^1.14.11",
+    "npm-run-all": "^4.1.2",
+    "rollup-plugin-commonjs": "^8.2.6",
+    "rollup-plugin-node-resolve": "^3.0.2",
+    "rollup-plugin-standard": "^0.0.3",
+    "rollup-plugin-uglify": "^3.0.0"
+  }
+}
