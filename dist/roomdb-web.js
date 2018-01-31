@@ -27594,7 +27594,7 @@ class LocalClient extends AbstractClient {
           this._toJSONFactOrPattern(...p) :
           this._toJSONFactOrPattern(p));
     const solutions = this._db.select(...patterns);
-    return {
+    const results = {
       async do(callbackFn) {
         for (let solution of solutions) {
           for (let name in solution) {
@@ -27604,6 +27604,7 @@ class LocalClient extends AbstractClient {
           }
           await callbackFn(solution);
         }
+        return results;
       },
       async count() {
         return solutions.length;
@@ -27615,6 +27616,7 @@ class LocalClient extends AbstractClient {
         return solutions.length > 0;
       }
     };
+    return results;
   }
 
   async flushChanges() {
@@ -27673,7 +27675,7 @@ class RemoteClient extends AbstractClient {
       const response = await fetch(`http://${this._address}:${this._port}/facts?${params}`);
       return await response.json();
     };
-    return {
+    const results = {
       async do(callbackFn) {
         for (let solution of await solutions()) {
           for (let name in solution) {
@@ -27683,6 +27685,7 @@ class RemoteClient extends AbstractClient {
           }
           await callbackFn(solution);
         }
+        return results;
       },
       async count() {
         return (await solutions()).length;
@@ -27694,6 +27697,7 @@ class RemoteClient extends AbstractClient {
         return (await solutions()).length > 0;
       }
     };
+    return results;
   }
 
   async flushChanges() {
