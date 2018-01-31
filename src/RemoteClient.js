@@ -55,14 +55,14 @@ class RemoteClient extends AbstractClient {
   }
 
   async flushChanges() {
-    const assertions = this._asserts;
     const retractions = this._retracts;
-    this._asserts = [];
+    const assertions = this._asserts;
     this._retracts = [];
+    this._asserts = [];
     const params =
         'clientId=' + this._id + '&' +
-        'assertions=' + JSON.stringify(assertions) + '&' +
-        'retractions=' + JSON.stringify(retractions);
+        'retractions=' + JSON.stringify(retractions) + '&' +
+        'assertions=' + JSON.stringify(assertions);
     const response = await fetch(
         `http://${this._address}:${this._port}/facts?${params}`,
         {method: 'PUT'});

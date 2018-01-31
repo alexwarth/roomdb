@@ -9610,52 +9610,28 @@ module.exports = {
 
 },{"../src/Grammar":75,"../src/MatchResult":79,"../src/pexprs":106,"util-extend":151}],71:[function(require,module,exports){
 module.exports={
-  "_args": [
-    [
-      {
-        "raw": "ohm-js",
-        "scope": null,
-        "escapedName": "ohm-js",
-        "name": "ohm-js",
-        "rawSpec": "",
-        "spec": "latest",
-        "type": "tag"
-      },
-      "/Users/awarth/prog/roomdb"
-    ]
-  ],
-  "_from": "ohm-js@latest",
+  "_from": "ohm-js@^0.14.0",
   "_id": "ohm-js@0.14.0",
-  "_inCache": true,
+  "_inBundle": false,
+  "_integrity": "sha512-Iuiapfkaf0ZdvuJo9thtE57BT93uNOSIb3/DtwuBNBJiiT28ALzTg++w3HoAXWbQBYPem9Bd8BaNJcDYoABWUA==",
   "_location": "/ohm-js",
-  "_nodeVersion": "8.6.0",
-  "_npmOperationalInternal": {
-    "host": "s3://npm-registry-packages",
-    "tmp": "tmp/ohm-js-0.14.0.tgz_1509722738307_0.8687030458822846"
-  },
-  "_npmUser": {
-    "name": "dubroy",
-    "email": "pdubroy@gmail.com"
-  },
-  "_npmVersion": "5.5.1",
   "_phantomChildren": {},
   "_requested": {
-    "raw": "ohm-js",
-    "scope": null,
-    "escapedName": "ohm-js",
+    "type": "range",
+    "registry": true,
+    "raw": "ohm-js@^0.14.0",
     "name": "ohm-js",
-    "rawSpec": "",
-    "spec": "latest",
-    "type": "tag"
+    "escapedName": "ohm-js",
+    "rawSpec": "^0.14.0",
+    "saveSpec": null,
+    "fetchSpec": "^0.14.0"
   },
   "_requiredBy": [
-    "#USER",
     "/"
   ],
   "_resolved": "https://registry.npmjs.org/ohm-js/-/ohm-js-0.14.0.tgz",
   "_shasum": "ef5dbe33d493407916f8c4c12115161872c2bc0d",
-  "_shrinkwrap": null,
-  "_spec": "ohm-js",
+  "_spec": "ohm-js@^0.14.0",
   "_where": "/Users/awarth/prog/roomdb",
   "author": {
     "name": "Alex Warth",
@@ -9668,6 +9644,7 @@ module.exports={
   "bugs": {
     "url": "https://github.com/harc/ohm/issues"
   },
+  "bundleDependencies": false,
   "contributors": [
     {
       "name": "Patrick Dubroy",
@@ -9769,6 +9746,7 @@ module.exports={
     "is-buffer": "^1.1.4",
     "util-extend": "^1.0.3"
   },
+  "deprecated": false,
   "description": "An object-oriented language for parsing and pattern matching",
   "devDependencies": {
     "@types/tape": "^4.2.29",
@@ -9793,16 +9771,9 @@ module.exports={
     "walk-sync": "^0.3.1",
     "watchify": "^3.8.0"
   },
-  "directories": {},
-  "dist": {
-    "integrity": "sha512-Iuiapfkaf0ZdvuJo9thtE57BT93uNOSIb3/DtwuBNBJiiT28ALzTg++w3HoAXWbQBYPem9Bd8BaNJcDYoABWUA==",
-    "shasum": "ef5dbe33d493407916f8c4c12115161872c2bc0d",
-    "tarball": "https://registry.npmjs.org/ohm-js/-/ohm-js-0.14.0.tgz"
-  },
   "engines": {
     "node": ">=0.12.1"
   },
-  "gitHead": "e49a48e245a0203493ac1e7631d7b1be7999515e",
   "homepage": "https://ohmlang.github.io/",
   "keywords": [
     "parser",
@@ -9818,27 +9789,7 @@ module.exports={
   ],
   "license": "MIT",
   "main": "src/main.js",
-  "maintainers": [
-    {
-      "name": "alexwarth",
-      "email": "alexwarth@gmail.com"
-    },
-    {
-      "name": "awarth",
-      "email": "alexwarth@gmail.com"
-    },
-    {
-      "name": "dubroy",
-      "email": "pdubroy@gmail.com"
-    },
-    {
-      "name": "mroeder",
-      "email": "m.roeder@photon-software.de"
-    }
-  ],
   "name": "ohm-js",
-  "optionalDependencies": {},
-  "readme": "ERROR: No README data found!",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/harc/ohm.git"
@@ -27667,10 +27618,10 @@ class LocalClient extends AbstractClient {
   }
 
   async flushChanges() {
-    this._asserts.forEach(fact => this._db.assert(this._id, fact));
-    this._asserts = [];
     this._retracts.forEach(pattern => this._db.retract(this._id, pattern));
     this._retracts = [];
+    this._asserts.forEach(fact => this._db.assert(this._id, fact));
+    this._asserts = [];
   }
 
   async immediatelyRetractEverythingAbout(name) {
@@ -27746,14 +27697,14 @@ class RemoteClient extends AbstractClient {
   }
 
   async flushChanges() {
-    const assertions = this._asserts;
     const retractions = this._retracts;
-    this._asserts = [];
+    const assertions = this._asserts;
     this._retracts = [];
+    this._asserts = [];
     const params =
         'clientId=' + this._id + '&' +
-        'assertions=' + JSON.stringify(assertions) + '&' +
-        'retractions=' + JSON.stringify(retractions);
+        'retractions=' + JSON.stringify(retractions) + '&' +
+        'assertions=' + JSON.stringify(assertions);
     const response = await fetch(
         `http://${this._address}:${this._port}/facts?${params}`,
         {method: 'PUT'});

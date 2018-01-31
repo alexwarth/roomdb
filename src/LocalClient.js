@@ -40,10 +40,10 @@ class LocalClient extends AbstractClient {
   }
 
   async flushChanges() {
-    this._asserts.forEach(fact => this._db.assert(this._id, fact));
-    this._asserts = [];
     this._retracts.forEach(pattern => this._db.retract(this._id, pattern));
     this._retracts = [];
+    this._asserts.forEach(fact => this._db.assert(this._id, fact));
+    this._asserts = [];
   }
 
   async immediatelyRetractEverythingAbout(name) {
