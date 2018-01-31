@@ -1,6 +1,6 @@
 {
   "name": "roomdb",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A Datalog-style database that enables programmers to represent facts in natural language.",
   "main": "src/roomdb-node.js",
   "dependencies": {
