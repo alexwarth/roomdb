@@ -2,7 +2,7 @@
   "name": "roomdb",
   "version": "0.0.1",
   "description": "A Datalog-style database that enables programmers to represent facts in natural language.",
-  "main": "src/index.js",
+  "main": "src/roomdb-node.js",
   "dependencies": {
     "browserify": "^15.2.0",
     "node-fetch": "^1.7.3",
