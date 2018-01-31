@@ -5,6 +5,13 @@ const RemoteClient = require('./RemoteClient');
 const Fact = require('./Fact');
 const {Id} = require('./terms');
 
+function flatten(obj) {
+  for (let prop in obj) {
+    obj[prop] = obj[prop];
+  }
+  return obj;
+}
+
 class RoomDB {
   constructor() {
     this._factMap = new Map();
@@ -14,7 +21,7 @@ class RoomDB {
     const patterns = jsonPatterns.map(jsonPattern => Fact.fromJSON(jsonPattern));
     const solutions = [];
     this._collectSolutions(patterns, Object.create(null), solutions);
-    return solutions;
+    return solutions.map(flatten);
   }
 
   _collectSolutions(patterns, env, solutions) {
