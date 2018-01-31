@@ -4,7 +4,7 @@ const restify = require('restify');
 const errors = require('restify-errors');
 const corsMiddleware = require('restify-cors-middleware');
 
-function listen(port) {
+function listen(port = 8080) {
   const db = this;
   const server = restify.createServer({name: 'RoomDB'});
   server.use(restify.plugins.queryParser());
@@ -56,7 +56,7 @@ function listen(port) {
     next();
   });
 
-  server.listen(8080, () => {
+  server.listen(port, () => {
     console.log('%s listening at %s', server.name, server.url);
   });
 
