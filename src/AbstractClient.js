@@ -44,6 +44,10 @@ class AbstractClient {
     throw new Error('subclass responsibility');
   }
 
+  async getAllFacts() {
+    throw new Error('subclass responsibility');
+  }
+
   _toJSONFactOrPattern(factOrPatternString, ...fillerValues) {
     if (arguments.length === 0) {
       throw new Error('not enough arguments!');

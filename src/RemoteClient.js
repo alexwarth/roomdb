@@ -85,6 +85,11 @@ class RemoteClient extends AbstractClient {
     return await response.json();
   }
 
+  async getAllFacts() {
+    const response = await fetch(`http://${this._address}:${this._port}/facts`);
+    return await response.json();
+  }
+
   toString() {
     return `[RemoteClient ${this._address}:${this._port}, ${this._id}]`;
   }

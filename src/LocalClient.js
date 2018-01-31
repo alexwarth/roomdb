@@ -56,6 +56,10 @@ class LocalClient extends AbstractClient {
     return this._db.retractEverythingAssertedBy(this._id);
   }
 
+  async getAllFacts() {
+    return this._db.getAllFacts();
+  }
+
   toString() {
     return `[LocalClient ${this._id}]`;
   }

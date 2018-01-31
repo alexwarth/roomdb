@@ -27481,6 +27481,10 @@ class AbstractClient {
     throw new Error('subclass responsibility');
   }
 
+  async getAllFacts() {
+    throw new Error('subclass responsibility');
+  }
+
   _toJSONFactOrPattern(factOrPatternString, ...fillerValues) {
     if (arguments.length === 0) {
       throw new Error('not enough arguments!');
@@ -27634,6 +27638,10 @@ class LocalClient extends AbstractClient {
     return this._db.retractEverythingAssertedBy(this._id);
   }
 
+  async getAllFacts() {
+    return this._db.getAllFacts();
+  }
+
   toString() {
     return `[LocalClient ${this._id}]`;
   }
@@ -27729,6 +27737,11 @@ class RemoteClient extends AbstractClient {
     return await response.json();
   }
 
+  async getAllFacts() {
+    const response = await fetch(`http://${this._address}:${this._port}/facts`);
+    return await response.json();
+  }
+
   toString() {
     return `[RemoteClient ${this._address}:${this._port}, ${this._id}]`;
   }
@@ -27768,7 +27781,7 @@ class RoomDB {
       solutions.push(env);
     } else {
       const pattern = patterns[0];
-      for (let fact of this.facts) {
+      for (let fact of this._facts) {
         const newEnv = Object.create(env);
         if (pattern.match(fact, newEnv)) {
           this._collectSolutions(patterns.slice(1), newEnv, solutions);
@@ -27790,7 +27803,7 @@ class RoomDB {
     const pattern = Fact.fromJSON(factJSON);
     if (pattern.hasVariablesOrWildcards()) {
       const factsToRetract =
-          this.facts.filter(fact => pattern.match(fact, Object.create(null)));
+          this._facts.filter(fact => pattern.match(fact, Object.create(null)));
       factsToRetract.forEach(fact => this._factMap.delete(fact.toString()));
       return factsToRetract.length;
     } else {
@@ -27802,23 +27815,27 @@ class RoomDB {
     const id = new Id(name);
     const emptyEnv = Object.create(null);
     const factsToRetract =
-        this.facts.filter(fact => fact.terms.some(term => id.match(term, emptyEnv)));
+        this._facts.filter(fact => fact.terms.some(term => id.match(term, emptyEnv)));
     factsToRetract.forEach(fact => this._factMap.delete(fact.toString()));
     return factsToRetract.length;
   }
 
   retractEverythingAssertedBy(clientId) {
-    const factsToRetract = this.facts.filter(fact => fact.asserter === clientId);
+    const factsToRetract = this._facts.filter(fact => fact.asserter === clientId);
     factsToRetract.forEach(fact => this._factMap.delete(fact.toString()));
     return factsToRetract.length;
   }
 
-  get facts() {
+  get _facts() {
     return Array.from(this._factMap.values());
   }
 
+  getAllFacts() {
+    return this._facts.map(fact => fact.toString());
+  }
+
   toString() {
-    return this.facts.map(fact => '<' + fact.asserter + '> ' + fact.toString()).join('\n');
+    return this._facts.map(fact => '<' + fact.asserter + '> ' + fact.toString()).join('\n');
   }
 
   client(id = 'local-client') {

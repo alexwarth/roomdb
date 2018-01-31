@@ -61,8 +61,11 @@ async function illuminateFacts() {
   ctxt.fillStyle = 'yellow';
   const x = 20;
   let y = 40;
-  ('one\ntwo\nthree').split('\n').forEach(line => {
-    ctxt.fillText(line, x, y);
+  const facts = await client.getAllFacts();
+  const maxWidth = facts.reduce((w, f) => Math.max(w, ctxt.measureText(f).width), 0);
+  console.log('mw', maxWidth);
+  facts.forEach(fact => {
+    ctxt.fillText(fact, canvas.width - maxWidth - 20, y);
     y += 20;
   });
 }

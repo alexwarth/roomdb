@@ -15,10 +15,15 @@ function listen(port = 8080) {
 
   server.get('/facts', (req, res, next) => {
     try {
-      const patterns = JSON.parse(req.query.query);
-      const solutions = db.select(...patterns);
-      res.send(solutions);
-      next();
+      if (req.query.query !== undefined) {
+        const patterns = JSON.parse(req.query.query);
+        const solutions = db.select(...patterns);
+        res.send(solutions);
+        next();
+      } else {
+        res.send(db.getAllFacts());
+        next();
+      }
     } catch (e) {
       console.error('uh-oh:', e);
       next(e instanceof SyntaxError ?
