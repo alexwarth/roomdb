@@ -19,7 +19,9 @@ const db = roomdb.create();
 const client = db.client('lola');
 
 async function main() {
-  await client.immediatelyAssert(`mouse's button is "up"`);
+  client.assert(`mouse's button is "up"`);
+  client.assert(`mouse is at (300, 300)`);
+  await client.flushChanges();
   runProcesses();
 }
 
