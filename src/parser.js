@@ -1,6 +1,10 @@
-'use strict';
+'use strict'
 
-RoomDB.grammar = ohm.grammar(`
+import { Fact, Val, Var, Hole, Id, Word } from './semantics.js'
+
+const ohm = require('ohm-js')
+
+const grammar = ohm.grammar(`
   G {
 
     factOrPattern
@@ -49,67 +53,68 @@ RoomDB.grammar = ohm.grammar(`
       = var | hole | identity | number | space
 
   }
-`);
+`)
 
-RoomDB.semantics = RoomDB.grammar.createSemantics().addOperation('parse', {
-  factOrPattern(terms) {
-    return new Fact(terms.parse());
-  },
-  term_true(_) {
-    return new Val(true);
-  },
-  term_false(_) {
-    return new Val(false);
-  },
-  term_null(_) {
-    return new Val(null);
-  },
-  var(_, cs) {
-    return new Var(cs.sourceString);
-  },
-  hole(_) {
-    return new Hole();
-  },
-  identity(_, cs) {
-    return new Id(cs.sourceString);
-  },
-  number(_1, _2, _3) {
-    return new Val(parseFloat(this.sourceString));
-  },
-  string(_oq, cs, _cq) {
-    const chars = [];
-    let idx = 0;
-    cs = cs.parse();
-    while (idx < cs.length) {
-      let c = cs[idx++];
-      if (c === '\\' && idx < cs.length) {
-        c = cs[idx++];
-        switch (c) {
-          case 'n': c = '\n'; break;
-          case 't': c = '\t'; break;
-          default: idx--;
+const semantics = grammar
+  .createSemantics()
+  .addOperation('parse', {
+    factOrPattern (terms) {
+      return new Fact(terms.parse())
+    },
+    term_true (_) {
+      return new Val(true)
+    },
+    term_false (_) {
+      return new Val(false)
+    },
+    term_null (_) {
+      return new Val(null)
+    },
+    var (_, cs) {
+      return new Var(cs.sourceString)
+    },
+    hole (_) {
+      return new Hole()
+    },
+    identity (_, cs) {
+      return new Id(cs.sourceString)
+    },
+    number (_1, _2, _3) {
+      return new Val(parseFloat(this.sourceString))
+    },
+    string (_oq, cs, _cq) {
+      const chars = []
+      let idx = 0
+      cs = cs.parse()
+      while (idx < cs.length) {
+        let c = cs[idx++]
+        if (c === '\\' && idx < cs.length) {
+          c = cs[idx++]
+          switch (c) {
+            case 'n': c = '\n'; break
+            case 't': c = '\t'; break
+            default: idx--
+          }
         }
+        chars.push(c)
       }
-      chars.push(c);
+      return new Val(chars.join(''))
+    },
+    word (_) {
+      return new Word(this.sourceString)
+    },
+    term_spaces (_) {
+      return new Word(' ')
+    },
+    _terminal () {
+      return this.sourceString
     }
-    return new Val(chars.join(''));
-  },
-  word(_) {
-    return new Word(this.sourceString);
-  },
-  term_spaces(_) {
-    return new Word(' ');
-  },
-  _terminal() {
-    return this.sourceString;
-  }
-});
+  })
 
-RoomDB.parse = function(str, rule) {
-  const matchResult = RoomDB.grammar.match(str.trim(), rule);
-  if (matchResult.succeeded()) {
-    return RoomDB.semantics(matchResult).parse();
-  } else {
-    throw new Error(`invalid ${rule}: ${str}`);
-  }
-};
+export default function parse (str, rule) {
+  const match = grammar.match(str.trim(), rule)
+
+  if (match.failed()) throw new Error(`invalid ${rule}: ${str}`)
+
+  return semantics(match).parse()
+}

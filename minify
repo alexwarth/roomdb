@@ -1,2 +1,0 @@
-node_modules/uglify-es/bin/uglifyjs src/RoomDB.js src/parser.js > dist/roomdb.min.js
-
