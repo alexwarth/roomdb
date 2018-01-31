@@ -1,6 +1,6 @@
 'use strict';
 
-const roomdb = require('./src/roomdb');
+const roomdb = require('../src/roomdb-node');
 
 const db = roomdb.create().listen(8080);
 const localClient = db.client('Lola');

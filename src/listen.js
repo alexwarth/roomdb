@@ -4,7 +4,8 @@ const restify = require('restify');
 const errors = require('restify-errors');
 const corsMiddleware = require('restify-cors-middleware');
 
-function makeDBAvailableAtPort(db, port) {
+function listen(port) {
+  const db = this;
   const server = restify.createServer({name: 'RoomDB'});
   server.use(restify.plugins.queryParser());
 
@@ -58,6 +59,8 @@ function makeDBAvailableAtPort(db, port) {
   server.listen(8080, () => {
     console.log('%s listening at %s', server.name, server.url);
   });
+
+  return db;
 }
 
-module.exports = makeDBAvailableAtPort;
+module.exports = listen;

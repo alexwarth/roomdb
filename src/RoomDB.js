@@ -4,7 +4,6 @@ const LocalClient = require('./LocalClient');
 const RemoteClient = require('./RemoteClient');
 const Fact = require('./Fact');
 const {Id} = require('./terms');
-const makeDBAvailableAtPort = require('./makeDBAvailableAtPort');
 
 class RoomDB {
   constructor() {
@@ -76,24 +75,9 @@ class RoomDB {
     return this.facts.map(fact => '<' + fact.asserter + '> ' + fact.toString()).join('\n');
   }
 
-  listen(port) {
-    makeDBAvailableAtPort(this, port);
-    return this;
-  }
-
-  client(id) {
+  client(id = 'local-client') {
     return new LocalClient(this, id);
   }
 }
 
-module.exports = {
-  create() {
-    return new RoomDB();
-  },
-  client(address, port, id) {
-    if (!RemoteClient.fetch) {
-      RemoteClient.fetch = this.fetch;
-    }
-    return new RemoteClient(address, port, id);
-  }
-};
+module.exports = RoomDB;

@@ -4,18 +4,15 @@
   "description": "A Datalog-style database that enables programmers to represent facts in natural language.",
   "main": "src/index.js",
   "dependencies": {
+    "browserify": "^15.2.0",
     "node-fetch": "^1.7.3",
     "ohm-js": "^0.14.0",
     "restify": "^6.3.4",
     "restify-cors-middleware": "^1.1.0",
     "restify-errors": "^5.0.0",
-    "uglify-es": "^3.3.7",
-    "uglify-js": "^3.3.7"
+    "uglify-es": "^3.3.7"
   },
   "devDependencies": {},
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/alexwarth/roomdb.git"
@@ -32,5 +29,9 @@
   "bugs": {
     "url": "https://github.com/alexwarth/roomdb/issues"
   },
-  "homepage": "https://github.com/alexwarth/roomdb#readme"
+  "homepage": "https://github.com/alexwarth/roomdb#readme",
+  "scripts": {
+    "clean": "rm dist/*",
+    "build-web": "node node_modules/browserify/bin/cmd.js src/roomdb-web.js -s roomdb -o dist/roomdb-web.js && node node_modules/uglify-es/bin/uglifyjs dist/roomdb-web.js > dist/roomdb-web.min.js"
+  }
 }
