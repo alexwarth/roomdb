@@ -1,0 +1,36 @@
+{
+  "name": "roomdb",
+  "version": "0.0.1",
+  "description": "A Datalog-style database that enables programmers to represent facts in natural language.",
+  "main": "src/index.js",
+  "dependencies": {
+    "node-fetch": "^1.7.3",
+    "ohm-js": "^0.14.0",
+    "restify": "^6.3.4",
+    "restify-cors-middleware": "^1.1.0",
+    "restify-errors": "^5.0.0",
+    "uglify-es": "^3.3.7",
+    "uglify-js": "^3.3.7"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alexwarth/roomdb.git"
+  },
+  "keywords": [
+    "datalog",
+    "natural",
+    "language",
+    "dynamicland",
+    "harc"
+  ],
+  "author": "Alex Warth <alexwarth@gmail.com> (http://alexwarth.com)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/alexwarth/roomdb/issues"
+  },
+  "homepage": "https://github.com/alexwarth/roomdb#readme"
+}
