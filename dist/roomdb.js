@@ -292,7 +292,7 @@ class RoomDB {
   }
 
   connect (id) {
-    if (id === null) id = this._newClientId();
+    if (typeof id === 'undefined' || id === null) id = this._newClientId();
     if (this._clientMap.has(id)) {
       throw new Error('there is already a client whose id is ' + id)
     }
