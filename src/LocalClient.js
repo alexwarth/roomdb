@@ -1,10 +1,10 @@
 'use strict';
 
-const AbstractClient = require('./AbstractClient');
-const {Term} = require('./terms');
-const parse = require('./parse');
+import AbstractClient from './AbstractClient.js';
+import {Term} from './terms.js';
+import parse from './parse.js';
 
-class LocalClient extends AbstractClient {
+export default class LocalClient extends AbstractClient {
   constructor(db, id) {
     super(id);
     this._db = db;
@@ -64,5 +64,3 @@ class LocalClient extends AbstractClient {
     return `[LocalClient ${this._id}]`;
   }
 }
-
-module.exports = LocalClient;
