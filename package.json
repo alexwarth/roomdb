@@ -2,7 +2,7 @@
   "name": "roomdb",
   "version": "0.0.3",
   "description": "A Datalog-style database that enables programmers to represent facts in natural language.",
-  "main": "src/roomdb-node.js",
+  "main": "src/roomdb.js",
   "dependencies": {
     "browserify": "^15.2.0",
     "node-fetch": "^1.7.3",
@@ -12,7 +12,13 @@
     "restify-errors": "^5.0.0",
     "uglify-es": "^3.3.7"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "ava": "^0.25.0",
+    "npm-run-all": "^4.1.2",
+    "rollup-plugin-commonjs": "^8.2.6",
+    "rollup-plugin-node-resolve": "^3.0.2",
+    "rollup-plugin-uglify": "^3.0.0"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/alexwarth/roomdb.git"
@@ -33,6 +39,11 @@
   "scripts": {
     "clean": "rm dist/*",
     "build-web": "node node_modules/browserify/bin/cmd.js src/roomdb-web.js -s roomdb -o dist/roomdb-web.js && node node_modules/uglify-es/bin/uglifyjs dist/roomdb-web.js > dist/roomdb-web.min.js",
-    "server": "node src/server.js"
+    "server": "node src/server.js",
+    "build": "npm-run-all build:* test",
+    "build:dev": "NODE_ENV=development rollup --config",
+    "build:prod": "rollup --config",
+    "develop": "nodemon --watch src --watch tests --exec 'yarn build'",
+    "test": "ava tests/*"
   }
 }

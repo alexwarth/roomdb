@@ -1,10 +1,9 @@
 'use strict';
 
-const AbstractClient = require('./AbstractClient');
-const {Term} = require('./terms');
-const parse = require('./parse');
+import AbstractClient from './AbstractClient'
+import {Term} from './terms'
 
-class LocalClient extends AbstractClient {
+export default class LocalClient extends AbstractClient {
   constructor(db, id) {
     super(id);
     this._db = db;

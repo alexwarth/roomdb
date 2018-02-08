@@ -212,7 +212,7 @@ class Hole extends Term {
   }
 }
 
-module.exports = {
+export {
   Term,
   Id,
   Word,
@@ -221,4 +221,4 @@ module.exports = {
   Variable,
   Wildcard,
   Hole
-};
+}

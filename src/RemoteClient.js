@@ -1,8 +1,8 @@
 'use strict';
 
-const AbstractClient = require('./AbstractClient');
-const {Term} = require('./terms');
-const parse = require('./parse');
+import AbstractClient from './AbstractClient'
+import {Term} from './terms'
+import parse from './parse'
 
 // If fetch is not declared, load it from the node-fetch module.
 // (This makes it possible to run RemoteClient in the browser and in node-js.)
@@ -14,7 +14,7 @@ const fetch = (() => {
   }
 })();
 
-class RemoteClient extends AbstractClient {
+export default class RemoteClient extends AbstractClient {
   constructor(address, port, id) {
     super(id);
     this._address = address;

@@ -1,9 +1,8 @@
 'use strict';
 
-const LocalClient = require('./LocalClient');
-const RemoteClient = require('./RemoteClient');
-const Fact = require('./Fact');
-const {Id} = require('./terms');
+import LocalClient from './LocalClient'
+import {Id} from './terms'
+import Fact from './Fact'
 
 function flatten(obj) {
   for (let prop in obj) {
@@ -12,7 +11,7 @@ function flatten(obj) {
   return obj;
 }
 
-class RoomDB {
+export default class RoomDB {
   constructor() {
     this._factMap = new Map();
   }
@@ -90,5 +89,3 @@ class RoomDB {
     return new LocalClient(this, id);
   }
 }
-
-module.exports = RoomDB;
