@@ -2,7 +2,7 @@
   "name": "roomdb",
   "version": "0.0.3",
   "description": "A Datalog-style database that enables programmers to represent facts in natural language.",
-  "main": "dist/roomdb.js",
+  "main": "dist/RoomDB.js",
   "dependencies": {
     "browserify": "^15.2.0",
     "node-fetch": "^1.7.3",
