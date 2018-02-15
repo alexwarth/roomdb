@@ -32,7 +32,7 @@ class AbstractClient {
   }
 
   async immediatelyRetract(patternString, ...fillerValues) {
-    this.assert(patternString, ...fillerValues);
+    this.retract(patternString, ...fillerValues);
     await this.flushChanges();
   }
 
