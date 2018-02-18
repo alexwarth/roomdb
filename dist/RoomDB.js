@@ -454,6 +454,10 @@ class LocalClient extends AbstractClient {
           this._toJSONFactOrPattern(p));
     const solutions = this._db.select(...patterns);
     const results = {
+      async doAll(callbackFn) {
+        await callbackFn(solutions);
+        return results;
+      },
       async do(callbackFn) {
         for (let solution of solutions) {
           for (let name in solution) {
