@@ -21,7 +21,6 @@
     "npm-run-all": "^4.1.2",
     "rollup-plugin-commonjs": "^8.2.6",
     "rollup-plugin-node-resolve": "^3.0.2",
-    "rollup-plugin-standard": "^0.0.3",
     "rollup-plugin-uglify": "^3.0.0"
   }
 }
