@@ -1,10 +1,10 @@
 'use strict';
 
-const parse = require('./parse');
+import parse from './parse'
 
 const MAX_PARSE_CACHE_SIZE = 1000;
 
-class AbstractClient {
+export default class AbstractClient {
   constructor(id) {
     this._id = id;
     this._parseCache = new Map();
@@ -99,5 +99,3 @@ class AbstractClient {
     this._parseCache.clear();
   }
 }
-
-module.exports = AbstractClient;

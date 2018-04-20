@@ -1,6 +1,6 @@
 'use strict';
 
-const ohm = require('ohm-js');
+const ohm = require('ohm-js')
 
 const grammar = ohm.grammar(`
   G {
@@ -117,7 +117,7 @@ const semantics = grammar.createSemantics().addOperation('parse', {
   }
 });
 
-function parse(str, optRule) {
+export default function parse(str, optRule) {
   const rule = optRule || 'factOrPattern';
   const matchResult = grammar.match(str.trim(), rule);
   if (matchResult.succeeded()) {
@@ -126,5 +126,3 @@ function parse(str, optRule) {
     throw new Error(`invalid ${rule}: ${str}`);
   }
 };
-
-module.exports = parse;

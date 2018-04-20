@@ -1,7 +1,7 @@
 'use strict';
 
-const RoomDB = require('./RoomDB');
-const RemoteClient = require('./RemoteClient');
+const RoomDB = require('../dist/RoomDB');
+const RemoteClient = require('../dist/RemoteClient');
 
 module.exports = {
   create() {

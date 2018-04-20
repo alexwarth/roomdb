@@ -1,6 +1,6 @@
 'use strict';
 
-const {Term, Variable, Wildcard} = require('./terms');
+import {Term, Variable, Wildcard} from './terms'
 
 class Fact {
   constructor(terms) {
@@ -35,4 +35,4 @@ class Fact {
 Fact.fromJSON =
     jsonTerms => new Fact(jsonTerms.map(jsonTerm => Term.fromJSON(jsonTerm)));
 
-module.exports = Fact;
+export default Fact
