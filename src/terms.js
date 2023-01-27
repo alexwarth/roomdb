@@ -20,9 +20,9 @@ class Term {
 
 Term.fromJSON = json => {
   if (json.hasOwnProperty('id')) {
-    return new Id(json.id);
+    return Id.get(json.id);
   } else if (json.hasOwnProperty('word')) {
-    return new Word(json.word);
+    return Word.get(json.word);
   } else if (json.hasOwnProperty('value')) {
     return new Value(json.value);
   } else if (json.hasOwnProperty('blobRef')) {
@@ -39,13 +39,23 @@ Term.fromJSON = json => {
 };
 
 class Id extends Term {
+  static internedIds = new Map();
+  static get(name) {
+    let id = this.internedIds.get(name);
+    if (id == null) {
+      id = new Id(name);
+      this.internedIds.set(name, id);
+    }
+    return id;
+  }
+
   constructor(name) {
     super();
     this.name = name;
   }
 
   toString() {
-    return '#' + this.name;
+    return this.name;
   }
 
   toJSON() {
@@ -64,6 +74,16 @@ class Id extends Term {
 }
 
 class Word extends Term {
+  static internedWords = new Map();
+  static get(value) {
+    let word = this.internedWords.get(value);
+    if (word == null) {
+      word = new Word(value);
+      this.internedWords.set(value, word);
+    }
+    return word;
+  }
+
   constructor(value) {
     super();
     this.value = value;

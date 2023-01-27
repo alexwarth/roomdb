@@ -1,5 +1,6 @@
 'use strict';
 
+const {Term} = require('./terms');
 const parse = require('./parse');
 
 const MAX_PARSE_CACHE_SIZE = 1000;
@@ -15,11 +16,13 @@ class AbstractClient {
   assert(factString, ...fillerValues) {
     const fact = this._toJSONFactOrPattern(factString, ...fillerValues);
     this._asserts.push(fact);
+    return this;
   }
 
   retract(patternString, ...fillerValues) {
     const pattern = this._toJSONFactOrPattern(patternString, ...fillerValues);
     this._retracts.push(pattern);
+    return this;
   }
 
   async flushChanges() {
@@ -29,11 +32,13 @@ class AbstractClient {
   async immediatelyAssert(factString, ...fillerValues) {
     this.assert(factString, ...fillerValues);
     await this.flushChanges();
+    return this;
   }
 
   async immediatelyRetract(patternString, ...fillerValues) {
     this.retract(patternString, ...fillerValues);
     await this.flushChanges();
+    return this;
   }
 
   async immediatelyRetractEverythingAbout(name) {
@@ -75,7 +80,7 @@ class AbstractClient {
   }
 
   _toJSONTerm(value) {
-    return {value: value};
+    return value instanceof Term ? value.toJSON() : {value: value};
   }
 
   _parse(factOrPatternString) {
@@ -97,6 +102,7 @@ class AbstractClient {
 
   clearParseCache() {
     this._parseCache.clear();
+    return this;
   }
 }
 

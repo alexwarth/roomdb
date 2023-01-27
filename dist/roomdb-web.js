@@ -27437,6 +27437,7 @@ function extend() {
 },{}],156:[function(require,module,exports){
 'use strict';
 
+const {Term} = require('./terms');
 const parse = require('./parse');
 
 const MAX_PARSE_CACHE_SIZE = 1000;
@@ -27452,11 +27453,13 @@ class AbstractClient {
   assert(factString, ...fillerValues) {
     const fact = this._toJSONFactOrPattern(factString, ...fillerValues);
     this._asserts.push(fact);
+    return this;
   }
 
   retract(patternString, ...fillerValues) {
     const pattern = this._toJSONFactOrPattern(patternString, ...fillerValues);
     this._retracts.push(pattern);
+    return this;
   }
 
   async flushChanges() {
@@ -27466,11 +27469,13 @@ class AbstractClient {
   async immediatelyAssert(factString, ...fillerValues) {
     this.assert(factString, ...fillerValues);
     await this.flushChanges();
+    return this;
   }
 
   async immediatelyRetract(patternString, ...fillerValues) {
     this.assert(patternString, ...fillerValues);
     await this.flushChanges();
+    return this;
   }
 
   async immediatelyRetractEverythingAbout(name) {
@@ -27512,7 +27517,7 @@ class AbstractClient {
   }
 
   _toJSONTerm(value) {
-    return {value: value};
+    return value instanceof Term ? value.toJSON() : {value: value};
   }
 
   _parse(factOrPatternString) {
@@ -27534,12 +27539,13 @@ class AbstractClient {
 
   clearParseCache() {
     this._parseCache.clear();
+    return this;
   }
 }
 
 module.exports = AbstractClient;
 
-},{"./parse":161}],157:[function(require,module,exports){
+},{"./parse":161,"./terms":163}],157:[function(require,module,exports){
 'use strict';
 
 const {Term, Variable, Wildcard} = require('./terms');
@@ -27584,7 +27590,6 @@ module.exports = Fact;
 
 const AbstractClient = require('./AbstractClient');
 const {Term} = require('./terms');
-const parse = require('./parse');
 
 class LocalClient extends AbstractClient {
   constructor(db, id) {
@@ -27628,6 +27633,7 @@ class LocalClient extends AbstractClient {
     this._retracts = [];
     this._asserts.forEach(fact => this._db.assert(this._id, fact));
     this._asserts = [];
+    return this;
   }
 
   async immediatelyRetractEverythingAbout(name) {
@@ -27649,7 +27655,7 @@ class LocalClient extends AbstractClient {
 
 module.exports = LocalClient;
 
-},{"./AbstractClient":156,"./parse":161,"./terms":163}],159:[function(require,module,exports){
+},{"./AbstractClient":156,"./terms":163}],159:[function(require,module,exports){
 'use strict';
 
 const AbstractClient = require('./AbstractClient');
@@ -27753,7 +27759,6 @@ module.exports = RemoteClient;
 'use strict';
 
 const LocalClient = require('./LocalClient');
-const RemoteClient = require('./RemoteClient');
 const Fact = require('./Fact');
 const {Id} = require('./terms');
 
@@ -27812,7 +27817,7 @@ class RoomDB {
   }
 
   retractEverythingAbout(clientId, name) {
-    const id = new Id(name);
+    const id = Id.get(name);
     const emptyEnv = Object.create(null);
     const factsToRetract =
         this._facts.filter(fact => fact.terms.some(term => id.match(term, emptyEnv)));
@@ -27845,7 +27850,7 @@ class RoomDB {
 
 module.exports = RoomDB;
 
-},{"./Fact":157,"./LocalClient":158,"./RemoteClient":159,"./terms":163}],161:[function(require,module,exports){
+},{"./Fact":157,"./LocalClient":158,"./terms":163}],161:[function(require,module,exports){
 'use strict';
 
 const ohm = require('ohm-js');
@@ -27865,7 +27870,7 @@ const grammar = ohm.grammar(`
       | hole
 
     id
-      = "#" alnum*
+      = upper alnum*
 
     value
       = keyword<"true">   -- true
@@ -27878,7 +27883,7 @@ const grammar = ohm.grammar(`
       = "$" alnum+
 
     wildcard
-      = "$"
+      = "*"
 
     hole
       = "_"
@@ -27912,8 +27917,8 @@ const semantics = grammar.createSemantics().addOperation('parse', {
   factOrPattern(terms) {
     return terms.parse();
   },
-  id(_, cs) {
-    return {id: cs.sourceString};
+  id(_1, _2) {
+    return {id: this.sourceString};
   },
   value_true(_) {
     return {value: true};
@@ -27971,6 +27976,8 @@ function parse(str, optRule) {
   if (matchResult.succeeded()) {
     return semantics(matchResult).parse();
   } else {
+    console.log(str.trim());
+    console.log(matchResult.message);
     throw new Error(`invalid ${rule}: ${str}`);
   }
 };
@@ -28015,9 +28022,9 @@ class Term {
 
 Term.fromJSON = json => {
   if (json.hasOwnProperty('id')) {
-    return new Id(json.id);
+    return Id.get(json.id);
   } else if (json.hasOwnProperty('word')) {
-    return new Word(json.word);
+    return Word.get(json.word);
   } else if (json.hasOwnProperty('value')) {
     return new Value(json.value);
   } else if (json.hasOwnProperty('blobRef')) {
@@ -28034,13 +28041,23 @@ Term.fromJSON = json => {
 };
 
 class Id extends Term {
+  static internedIds = new Map();
+  static get(name) {
+    let id = this.internedIds.get(name);
+    if (id == null) {
+      id = new Id(name);
+      this.internedIds.set(name, id);
+    }
+    return id;
+  }
+
   constructor(name) {
     super();
     this.name = name;
   }
 
   toString() {
-    return '#' + this.name;
+    return this.name;
   }
 
   toJSON() {
@@ -28059,6 +28076,16 @@ class Id extends Term {
 }
 
 class Word extends Term {
+  static internedWords = new Map();
+  static get(value) {
+    let word = this.internedWords.get(value);
+    if (word == null) {
+      word = new Word(value);
+      this.internedWords.set(value, word);
+    }
+    return word;
+  }
+
   constructor(value) {
     super();
     this.value = value;

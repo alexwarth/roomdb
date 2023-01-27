@@ -2,7 +2,6 @@
 
 const AbstractClient = require('./AbstractClient');
 const {Term} = require('./terms');
-const parse = require('./parse');
 
 class LocalClient extends AbstractClient {
   constructor(db, id) {
@@ -46,6 +45,7 @@ class LocalClient extends AbstractClient {
     this._retracts = [];
     this._asserts.forEach(fact => this._db.assert(this._id, fact));
     this._asserts = [];
+    return this;
   }
 
   async immediatelyRetractEverythingAbout(name) {

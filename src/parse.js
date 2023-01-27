@@ -17,7 +17,7 @@ const grammar = ohm.grammar(`
       | hole
 
     id
-      = "#" alnum*
+      = upper alnum*
 
     value
       = keyword<"true">   -- true
@@ -30,7 +30,7 @@ const grammar = ohm.grammar(`
       = "$" alnum+
 
     wildcard
-      = "$"
+      = "*"
 
     hole
       = "_"
@@ -64,8 +64,8 @@ const semantics = grammar.createSemantics().addOperation('parse', {
   factOrPattern(terms) {
     return terms.parse();
   },
-  id(_, cs) {
-    return {id: cs.sourceString};
+  id(_1, _2) {
+    return {id: this.sourceString};
   },
   value_true(_) {
     return {value: true};
@@ -123,6 +123,8 @@ function parse(str, optRule) {
   if (matchResult.succeeded()) {
     return semantics(matchResult).parse();
   } else {
+    console.log(str.trim());
+    console.log(matchResult.message);
     throw new Error(`invalid ${rule}: ${str}`);
   }
 };

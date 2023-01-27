@@ -14,49 +14,100 @@ body {
 
 'use strict';
 
-const ctxt = canvas.getContext('2d');
+/*
+
+Demo:
+* Start w/ just facts illuminator, move the mouse around, show code
+* Turn on object label illuminator
+* Turn off object label illuminator, turn on rectangle illuminator
+* Turn on "rectangles are afraid of mice"
+
+TODO:
+* Add webcam process and illuminator
+* Project webcam image onto the rectangle? (fun)
+
+*/
+
 const db = roomdb.create();
-const client = db.client('lola');
+const client = db.client('alex');
+const ctxt = canvas.getContext('2d');
 
 async function main() {
-  client.assert(`mouse's button is "up"`);
-  client.assert(`mouse is at (300, 300)`);
-  await client.flushChanges();
+  await client
+    .assert(`R1 is a rectangle of width 100 and height 50`)
+    .assert(`R1's color is "green"`)
+    .assert(`R1 is at (375, 200)`)
+
+    // .assert(`R2 is a rectangle of width 40 and height 120`)
+    // .assert(`R2's color is "blue"`)
+    // .assert(`R2 is at (200, 400)`)
+
+    .assert(`Mouse's button is "up"`)
+    .assert(`Mouse is at (300, 300)`)
+
+    .flushChanges();
+
   runProcesses();
 }
 
 async function runProcesses() {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
-  await illuminateMouse();
-  await illuminateFacts();
-  requestAnimationFrame(runProcesses);
-}
+  ctxt.font = '12pt Monaco';
 
-async function illuminateMouse() {
-  await client.select(
-      `mouse is at ($x, $y)`,
-      `mouse's button is $b`
-  ).do(({x, y, b}) => {
-    ctxt.fillStyle = b === 'up' ? 'cornflowerblue' : 'navy';
-    ctxt.beginPath();
-    ctxt.arc(x, y, 30, 0, 2 * Math.PI);
-    ctxt.fill();
-  });
-}
-
-async function illuminateFacts() {
-  ctxt.font = '12pt Courier';
-  ctxt.fillStyle = 'yellow';
+  // Illuminate facts
   const x = 20;
-  let y = 40;
+  let y = 32;
   const facts = await client.getAllFacts();
-  const maxWidth = facts.reduce((w, f) => Math.max(w, ctxt.measureText(f).width), 0);
-  console.log('mw', maxWidth);
   facts.forEach(fact => {
-    ctxt.fillText(fact, canvas.width - maxWidth - 20, y);
-    y += 20;
+    ctxt.fillStyle = 'white';
+    ctxt.fillText(fact, 20, y);
+    y += 25;
   });
+
+  // // Illuminate object labels
+  // client
+  //   .select(`$obj is at ($x, $y)`)
+  //   .do(({ obj, x, y }) => {
+  //     const m = ctxt.measureText(obj);
+  //     ctxt.fillStyle = 'yellow';
+  //     ctxt.fillText(obj, x - m.width / 2, y + 6);
+  //   });
+
+  // Illuminate rectangles
+  await client
+    .select(
+      `$r is a rectangle of width $w and height $h`,
+      `$r is at ($x, $y)`,
+      `$r's color is $c`
+    )
+    .do(({r, w, h, x, y, c}) => {
+      ctxt.fillStyle = c;
+      ctxt.beginPath();
+      ctxt.rect(x - w / 2, y - h / 2, w, h);
+      ctxt.fill();
+    });
+
+  // Rectangles are afraid of mice
+  await client
+    .select(
+      `$r is a rectangle of width * and height *`,
+      `$r is at ($rx, $ry)`,
+      `Mouse is at ($mx, $my)`
+    )
+    .do(({r, rx, ry, mx, my}) => {
+      const dist = Math.sqrt(Math.pow(rx - mx, 2) + Math.pow(ry - my, 2));
+      if (dist < 100) {
+        const v = 4;
+        const dx = Math.round(v * (rx - mx) / dist);
+        const dy = Math.round(v * (ry - my) / dist);
+        client.retract('_ is at (_, _)', r, rx, ry);
+        client.assert('_ is at (_, _)', r, rx + dx, ry + dy);
+      }
+    });
+  
+  await client.flushChanges();
+  requestAnimationFrame(runProcesses);
 }
 
 main();
@@ -65,8 +116,8 @@ let handlingMouseMove = false;
 canvas.onmousemove = async e => {
   if (!handlingMouseMove) {
     handlingMouseMove = true;
-    client.retract(`mouse is at ($x, $y)`);
-    client.assert(`mouse is at (_, _)`, e.offsetX, e.offsetY);
+    client.retract(`Mouse is at ($x, $y)`);
+    client.assert(`Mouse is at (_, _)`, e.offsetX, e.offsetY);
     await client.flushChanges();
     handlingMouseMove = false;
   }
@@ -76,8 +127,8 @@ let handlingMouseDown = false;
 canvas.onmousedown = async e => {
   if (!handlingMouseDown) {
     handlingMouseDown = true;
-    client.retract(`mouse's button is $state`);
-    client.assert(`mouse's button is "down"`);
+    client.retract(`Mouse's button is $state`);
+    client.assert(`Mouse's button is "down"`);
     await client.flushChanges();
     handlingMouseDown = false;
   }
@@ -87,8 +138,8 @@ let handlingMouseUp = false;
 canvas.onmouseup = async e => {
   if (!handlingMouseUp) {
     handlingMouseUp = true;
-    client.retract(`mouse's button is $state`);
-    client.assert(`mouse's button is "up"`);
+    client.retract(`Mouse's button is $state`);
+    client.assert(`Mouse's button is "up"`);
     await client.flushChanges();
     handlingMouseUp = false;
   }

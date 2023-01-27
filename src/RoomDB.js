@@ -1,7 +1,6 @@
 'use strict';
 
 const LocalClient = require('./LocalClient');
-const RemoteClient = require('./RemoteClient');
 const Fact = require('./Fact');
 const {Id} = require('./terms');
 
@@ -60,7 +59,7 @@ class RoomDB {
   }
 
   retractEverythingAbout(clientId, name) {
-    const id = new Id(name);
+    const id = Id.get(name);
     const emptyEnv = Object.create(null);
     const factsToRetract =
         this._facts.filter(fact => fact.terms.some(term => id.match(term, emptyEnv)));

@@ -10,9 +10,8 @@
     "restify": "^6.3.4",
     "restify-cors-middleware": "^1.1.0",
     "restify-errors": "^5.0.0",
-    "uglify-es": "^3.3.7"
+    "uglify-js": "^3.17.4"
   },
-  "devDependencies": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/alexwarth/roomdb.git"
@@ -32,7 +31,7 @@
   "homepage": "https://github.com/alexwarth/roomdb#readme",
   "scripts": {
     "clean": "rm dist/*",
-    "build-web": "node node_modules/browserify/bin/cmd.js src/roomdb-web.js -s roomdb -o dist/roomdb-web.js && node node_modules/uglify-es/bin/uglifyjs dist/roomdb-web.js > dist/roomdb-web.min.js",
+    "build-web": "node node_modules/browserify/bin/cmd.js src/roomdb-web.js -s roomdb -o dist/roomdb-web.js && node node_modules/uglify-js/bin/uglifyjs dist/roomdb-web.js > dist/roomdb-web.min.js",
     "server": "node src/server.js"
   }
 }
