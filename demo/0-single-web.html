@@ -116,40 +116,44 @@ async function runProcesses() {
   // await client
   //   .select(`* is near the left edge of the screen`)
   //   .do(() => {
+  //     const noise = Math.random() * 5 - 2.5;
   //     ctxt.strokeStyle = 'yellow';
   //     ctxt.beginPath();
-  //     ctxt.moveTo(100, 0);
-  //     ctxt.lineTo(100, canvas.height);
+  //     ctxt.moveTo(100 + noise, 0);
+  //     ctxt.lineTo(100 + noise, canvas.height);
   //     ctxt.lineWidth = 1;
   //     ctxt.stroke();
   //   });
   // await client
   //   .select(`* is near the right edge of the screen`)
   //   .do(() => {
+  //     const noise = Math.random() * 5 - 2.5;
   //     ctxt.strokeStyle = 'yellow';
   //     ctxt.beginPath();
-  //     ctxt.moveTo(canvas.width - 100, 0);
-  //     ctxt.lineTo(canvas.width - 100, canvas.height);
+  //     ctxt.moveTo(canvas.width - 100 + noise, 0);
+  //     ctxt.lineTo(canvas.width - 100 + noise, canvas.height);
   //     ctxt.lineWidth = 1;
   //     ctxt.stroke();
   //   });
   // await client
   //   .select(`* is near the top edge of the screen`)
   //   .do(() => {
+  //     const noise = Math.random() * 5 - 2.5;
   //     ctxt.strokeStyle = 'yellow';
   //     ctxt.beginPath();
-  //     ctxt.moveTo(0, 100);
-  //     ctxt.lineTo(canvas.width, 100);
+  //     ctxt.moveTo(0, 100 + noise);
+  //     ctxt.lineTo(canvas.width, 100 + noise);
   //     ctxt.lineWidth = 1;
   //     ctxt.stroke();
   //   });
   // await client
   //   .select(`* is near the bottom edge of the screen`)
   //   .do(() => {
+  //     const noise = Math.random() * 5 - 2.5;
   //     ctxt.strokeStyle = 'yellow';
   //     ctxt.beginPath();
-  //     ctxt.moveTo(0, canvas.height - 100);
-  //     ctxt.lineTo(canvas.width, canvas.height - 100);
+  //     ctxt.moveTo(0, canvas.height - 100 + noise);
+  //     ctxt.lineTo(canvas.width, canvas.height - 100 + noise);
   //     ctxt.lineWidth = 1;
   //     ctxt.stroke();
   //   });
