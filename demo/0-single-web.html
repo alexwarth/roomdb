@@ -14,20 +14,6 @@ body {
 
 'use strict';
 
-/*
-
-Demo:
-* Start w/ just facts illuminator, move the mouse around, show code
-* Turn on object label illuminator
-* Turn off object label illuminator, turn on rectangle illuminator
-* Turn on "rectangles are afraid of mice"
-
-TODO:
-* Add webcam process and illuminator
-* Project webcam image onto the rectangle? (fun)
-
-*/
-
 const db = roomdb.create();
 const client = db.client('alex');
 const ctxt = canvas.getContext('2d');
@@ -74,38 +60,100 @@ async function runProcesses() {
   //     ctxt.fillText(obj, x - m.width / 2, y + 6);
   //   });
 
-  // Illuminate rectangles
-  await client
-    .select(
-      `$r is a rectangle of width $w and height $h`,
-      `$r is at ($x, $y)`,
-      `$r's color is $c`
-    )
-    .do(({r, w, h, x, y, c}) => {
-      ctxt.fillStyle = c;
-      ctxt.beginPath();
-      ctxt.rect(x - w / 2, y - h / 2, w, h);
-      ctxt.fill();
-    });
+  // // Illuminate rectangles
+  // await client
+  //   .select(
+  //     `$r is a rectangle of width $w and height $h`,
+  //     `$r is at ($x, $y)`,
+  //     `$r's color is $c`
+  //   )
+  //   .do(({r, w, h, x, y, c}) => {
+  //     ctxt.fillStyle = c;
+  //     ctxt.beginPath();
+  //     ctxt.rect(x - w / 2, y - h / 2, w, h);
+  //     ctxt.fill();
+  //   });
 
-  // Rectangles are afraid of mice
-  await client
-    .select(
-      `$r is a rectangle of width * and height *`,
-      `$r is at ($rx, $ry)`,
-      `Mouse is at ($mx, $my)`
-    )
-    .do(({r, rx, ry, mx, my}) => {
-      const dist = Math.sqrt(Math.pow(rx - mx, 2) + Math.pow(ry - my, 2));
-      if (dist < 100) {
-        const v = 4;
-        const dx = Math.round(v * (rx - mx) / dist);
-        const dy = Math.round(v * (ry - my) / dist);
-        client.retract('_ is at (_, _)', r, rx, ry);
-        client.assert('_ is at (_, _)', r, rx + dx, ry + dy);
-      }
-    });
+  // // Rectangles are afraid of mice
+  // await client
+  //   .select(
+  //     `$r is a rectangle of width * and height *`,
+  //     `$r is at ($rx, $ry)`,
+  //     `Mouse is at ($mx, $my)`
+  //   )
+  //   .do(({r, rx, ry, mx, my}) => {
+  //     const dist = Math.sqrt(Math.pow(rx - mx, 2) + Math.pow(ry - my, 2));
+  //     if (dist < 100) {
+  //       const v = 4;
+  //       const dx = Math.round(v * (rx - mx) / dist);
+  //       const dy = Math.round(v * (ry - my) / dist);
+  //       client.retract('_ is at (_, _)', r, rx, ry);
+  //       client.assert('_ is at (_, _)', r, rx + dx, ry + dy);
+  //     }
+  //   });
   
+  // // Find objects that are near the edges of the screen
+  // client.retract('$obj is near the $side edge of the screen');
+  // await client
+  //   .select(`$obj is at ($x, $y)`)
+  //   .do(({obj, x, y}) => {
+  //     if (x <= 100) {
+  //       client.assert('_ is near the left edge of the screen', obj);
+  //     }
+  //     if (canvas.width - x <= 100) {
+  //       client.assert('_ is near the right edge of the screen', obj);
+  //     }
+  
+  //     if (y <= 100) {
+  //       client.assert('_ is near the top edge of the screen', obj);
+  //     }
+  //     if (canvas.height - y <= 100) {
+  //       client.assert('_ is near the bottom edge of the screen', obj);
+  //     }
+  //   });
+
+  // // Illuminate the edge of the screen when an object is near
+  // await client
+  //   .select(`* is near the left edge of the screen`)
+  //   .do(() => {
+  //     ctxt.strokeStyle = 'yellow';
+  //     ctxt.beginPath();
+  //     ctxt.moveTo(100, 0);
+  //     ctxt.lineTo(100, canvas.height);
+  //     ctxt.lineWidth = 1;
+  //     ctxt.stroke();
+  //   });
+  // await client
+  //   .select(`* is near the right edge of the screen`)
+  //   .do(() => {
+  //     ctxt.strokeStyle = 'yellow';
+  //     ctxt.beginPath();
+  //     ctxt.moveTo(canvas.width - 100, 0);
+  //     ctxt.lineTo(canvas.width - 100, canvas.height);
+  //     ctxt.lineWidth = 1;
+  //     ctxt.stroke();
+  //   });
+  // await client
+  //   .select(`* is near the top edge of the screen`)
+  //   .do(() => {
+  //     ctxt.strokeStyle = 'yellow';
+  //     ctxt.beginPath();
+  //     ctxt.moveTo(0, 100);
+  //     ctxt.lineTo(canvas.width, 100);
+  //     ctxt.lineWidth = 1;
+  //     ctxt.stroke();
+  //   });
+  // await client
+  //   .select(`* is near the bottom edge of the screen`)
+  //   .do(() => {
+  //     ctxt.strokeStyle = 'yellow';
+  //     ctxt.beginPath();
+  //     ctxt.moveTo(0, canvas.height - 100);
+  //     ctxt.lineTo(canvas.width, canvas.height - 100);
+  //     ctxt.lineWidth = 1;
+  //     ctxt.stroke();
+  //   });
+
   await client.flushChanges();
   requestAnimationFrame(runProcesses);
 }
